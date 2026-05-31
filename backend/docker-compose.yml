@@ -1,0 +1,74 @@
+services:
+  redis:
+    image: redis:7
+    container_name: redis
+    command: redis-server --requirepass ${REDIS_PASSWORD:-changeme_in_production}
+    restart: unless-stopped
+
+  kafka:
+    image: apache/kafka:3.8.0
+    container_name: kafka
+    hostname: kafka
+    restart: unless-stopped
+    environment:
+      - KAFKA_NODE_ID=0
+      - KAFKA_PROCESS_ROLES=broker,controller
+      - KAFKA_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://kafka:9094
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+      - CLUSTER_ID=4L6g3nShT-eMCtK--X86sw
+
+  identity-service:
+    image: backend-chat-app/identity-service
+    build:
+      context: ./identity-service
+    container_name: backend-chat-app-identity-service
+    ports:
+      - "8080:8080"
+    env_file:
+      - identity-service/.env
+    networks:
+      default:
+        aliases:
+          - identify-service
+          - identity-service
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  chat-service:
+    image: backend-chat-app/chat-service
+    build:
+      context: ./chat-service
+    container_name: backend-chat-app-chat-service
+    ports:
+      - "8081:8081"
+    environment:
+      - IDENTIFY_URL=http://identify-service:8080/identify
+    env_file:
+      - chat-service/.env
+    depends_on:
+      - kafka
+      - redis
+    restart: unless-stopped
+
+  api-gateway:
+    image: backend-chat-app/api-gateway
+    build:
+      context: ./api-gateway
+    container_name: backend-chat-app-api-gateway
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    depends_on:
+      - identity-service
+      - chat-service
+    restart: unless-stopped
+
+volumes:
+  db-data:

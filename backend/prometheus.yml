@@ -1,0 +1,19 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'api-gateway'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['api-gateway:8081']
+
+  - job_name: 'identify-service'
+    metrics_path: '/identify/actuator/prometheus'
+    static_configs:
+      - targets: ['identify-service:8080']
+
+  - job_name: 'chat-service'
+    metrics_path: '/chat/actuator/prometheus'
+    static_configs:
+      - targets: ['chat-service:8082']

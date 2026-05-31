@@ -1,0 +1,162 @@
+@import "tailwindcss";
+
+/* === FONT: Geist Sans === */
+@font-face {
+  font-family: "Geist";
+  src: url("https://cdn.jsdelivr.net/npm/geist@1.4.1/dist/fonts/geist-sans/Geist-Regular.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Geist";
+  src: url("https://cdn.jsdelivr.net/npm/geist@1.4.1/dist/fonts/geist-sans/Geist-Medium.woff2")
+    format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Geist";
+  src: url("https://cdn.jsdelivr.net/npm/geist@1.4.1/dist/fonts/geist-sans/Geist-SemiBold.woff2")
+    format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Geist";
+  src: url("https://cdn.jsdelivr.net/npm/geist@1.4.1/dist/fonts/geist-sans/Geist-Bold.woff2")
+    format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* === BASE === */
+html,
+body,
+#root {
+  height: 100%;
+  min-height: 100%;
+  font-family:
+    "Geist",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Fallback for iOS Safari dynamic toolbars */
+.h-screen-mobile {
+  height: 100vh;
+  min-height: 100vh;
+}
+
+@supports (height: 100dvh) {
+  .h-screen-mobile {
+    height: 100dvh;
+    min-height: 100dvh;
+  }
+}
+
+@supports (-webkit-touch-callout: none) {
+  .h-screen-mobile {
+    height: -webkit-fill-available;
+    min-height: -webkit-fill-available;
+  }
+}
+
+:root {
+  --safe-area-inset-top: env(safe-area-inset-top, 0px);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-bottom {
+  padding-bottom: var(--safe-area-inset-bottom);
+}
+
+.safe-top {
+  padding-top: var(--safe-area-inset-top);
+}
+
+/* === ANIMATIONS === */
+@layer utilities {
+  .slide-in-left {
+    animation: slideInLeft 0.3s ease-out;
+  }
+  .slide-in-right {
+    animation: slideInRight 0.3s ease-out;
+  }
+  .slide-out-left {
+    animation: slideOutLeft 0.3s ease-in;
+  }
+  .slide-out-right {
+    animation: slideOutRight 0.3s ease-in;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes slideOutLeft {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* === SCROLLBAR === */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d4d4d8;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1aa;
+}
+
+/* === REDUCED MOTION === */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

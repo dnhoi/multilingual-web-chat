@@ -1,0 +1,110 @@
+server:
+  reactive:
+    session:
+      cookie:
+        name: GATEWAYSESSION
+  port: 8000
+app:
+  api-prefix: /api/v1
+
+#logging:
+#  level:
+#    # Bật log DEBUG cho toàn bộ Spring Cloud Gateway
+#    org.springframework.cloud.gateway: DEBUG
+#    # Bật log DEBUG cho các predicate và filter
+#    org.springframework.cloud.gateway.route.RouteDefinitionRouteLocator: DEBUG
+#    # Bật log DEBUG cho các yêu cầu HTTP đi ra từ Gateway
+#    reactor.netty.http.client: DEBUG
+
+spring:
+  data:
+    redis:
+      host: redis
+      port: 6379
+      # FIX: Them password cho Redis authentication
+      password: ${REDIS_PASSWORD:-changeme_in_production}
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      forwarded:
+        enabled: true
+      x-forwarded:
+        enabled: true
+        # Disable prefix forwarding: when enabled, Spring Security builds OAuth2 redirect
+        # URLs using only the X-Forwarded-Prefix (/api/v1) and omits the servlet
+        # context-path (/identify), producing /api/v1/auth/oauth2/success -> 404.
+        prefix-enabled: false
+        host-enabled: true
+        port-enabled: true
+        proto-enabled: true
+      websocket:
+        max-frame-payload-length: 52428800 # 50MB
+      routes:
+        # Keep the WebSocket route before the generic chat HTTP route. Both
+        # routes match /api/v1/chat/**, and the specific upgrade route must win.
+        - id: chat-ws
+          uri: ws://chat-service:8081
+          predicates:
+            - Path=${app.api-prefix}/chat/ws/**
+            - Header=Upgrade, websocket
+          filters:
+            - StripPrefix=2
+        - id: oauth2-initiate
+          uri: http://identify-service:8080
+          predicates:
+            - Path=${app.api-prefix}/identify/login/oauth2/**
+          filters:
+            - StripPrefix=2
+        - id: oauth2-success
+          uri: http://identify-service:8080
+          predicates:
+            - Path=${app.api-prefix}/identify/auth/oauth2/**
+          filters:
+            - StripPrefix=2
+        - id: oauth2-success-noctx
+          # Fallback: Spring may redirect to /api/v1/auth/oauth2/success (no /identify)
+          # when X-Forwarded-Prefix affects how context-path is prepended.
+          uri: http://identify-service:8080
+          predicates:
+            - Path=${app.api-prefix}/auth/oauth2/**
+          filters:
+            - RewritePath=${app.api-prefix}/auth/(?<seg>.*), /identify/auth/${seg}
+        - id: oauth2-authorization-identify
+          uri: http://identify-service:8080
+          predicates:
+            - Path=${app.api-prefix}/identify/oauth2/**
+          filters:
+            - RewritePath=${app.api-prefix}/(?<segment>.*), /$\{segment}
+        - id: oauth2-authorization-global
+          uri: http://identify-service:8080
+          predicates:
+            - Path=${app.api-prefix}/oauth2/**
+          filters:
+            - RewritePath=${app.api-prefix}/(?<segment>.*), /identify/$\{segment}
+        - id: identify-service
+          uri: http://identify-service:8080
+          predicates:
+            - Path=${app.api-prefix}/identify/**
+          filters:
+            - StripPrefix=2
+        - id: chat-service
+          uri: http://chat-service:8081
+          predicates:
+            - Path=${app.api-prefix}/chat/**
+          filters:
+            - StripPrefix=2
+        - id: identify-direct
+          uri: http://identify-service:8080
+          predicates:
+            - Path=/identify/**
+        - id: chat-direct
+          uri: http://chat-service:8081
+          predicates:
+            - Path=/chat/**
+      default-filters:
+        - SaveSession
+#logging:
+#  level:
+#    org.springframework.cloud.gateway: DEBUG
+#    reactor.netty.http.client: DEBUG

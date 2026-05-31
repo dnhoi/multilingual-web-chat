@@ -1,0 +1,76 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /identify
+    session:
+      cookie:
+        path: /
+  forward-headers-strategy: framework
+spring:
+  sendgrid:
+    api-key: ${BREVO_API_KEY}
+  data:
+    redis:
+      host: redis
+      port: 6379
+      # FIX: Them password cho Redis authentication
+      password: ${REDIS_PASSWORD:-changeme_in_production}
+  application:
+    name: identify-service
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: ${URL_DB}
+    username: ${USERNAME_DB}
+    password: ${PASSWORD_DB}
+  activation:
+    base-url: "http://localhost:8000/api/v1/identify/auth/active"
+  jpa:
+    hibernate:
+      ddl-auto: update
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${CLIENT_ID}
+            client-secret: ${CLIENT_SECRET}
+            redirect-uri: http://localhost:8000/api/v1/identify/login/oauth2/code/{registrationId}
+#            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+              - email
+              - profile
+        provider:
+          google:
+            user-name-attribute: sub
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+jwt:
+  signerKey: ${SIGNER_KEY}
+app:
+  frontend:
+    url: ${FRONTEND_URL:http://localhost:5173}
+  admin:
+    username: ${ADMIN_USERNAME:admin}
+    password: ${ADMIN_PASSWORD}
+  cookie:
+    secure: ${COOKIE_SECURE:false}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: when_authorized  # FIX #10: Che giau chi tiet actuator voi public
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+#
+#logging:
+#  level:
+#    org.springframework.security: DEBUG
+#    org.springframework.security.oauth2: TRACE
+#    org.springframework.web.client: DEBUG

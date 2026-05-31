@@ -1,0 +1,57 @@
+# ===== Java/Maven =====
+/target/
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# ===== IntelliJ IDEA =====
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# ===== VS Code =====
+.vscode/
+
+# ===== Logs =====
+*.log
+*_log.txt
+*_log_full.txt
+*_check.txt
+compile_err.txt
+
+# ===== OS Files =====
+.DS_Store
+Thumbs.db
+
+# ===== Environment/Secrets =====
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# ===== Docker =====
+*.pid
+*.seed
+docker-compose.override.yml
+
+# ===== Build tools cache =====
+.gradle/
+build/
+!**/src/**/build/
+
+# ===== Test coverage =====
+/coverage/
+jacoco.exec
+
+# ===== Node/npm (nếu có frontend) =====
+node_modules/
+dist/
+build/
+npm-debug.log
+yarn-error.log
