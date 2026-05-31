@@ -64,7 +64,7 @@ graph TD
     subgraph "Dịch Vụ Ngoại Vi"
         IdentifySvc <-->|OAuth2 Authentication| GoogleOAuth["Google OAuth2 Provider"]
         IdentifySvc <-->|Activation & Reset Emails| BrevoMail["Brevo API / SMTP Server"]
-        ChatSvc <-->|AI Translation (Primary)| GeminiAI["Google Gemini AI"]
+        ChatSvc <-->|"AI Translation (Primary)"| GeminiAI["Google Gemini AI"]
         ChatSvc <-->|Translation Fallback| MyMemory["MyMemory API"]
         Client <-->|Upload Media/Images| Cloudinary["Cloudinary CDN"]
         Client <-->|Direct Video/Voice Media Streams| Peer["Remote User (P2P WebRTC)"]
